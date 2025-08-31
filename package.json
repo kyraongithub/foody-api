@@ -2,7 +2,7 @@
   "name": "foody-api",
   "version": "1.0.0",
   "description": "Food delivery API with Express.js, PostgreSQL, and Prisma",
-  "main": "src/server.js",
+  "main": "api/index.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
@@ -27,7 +27,14 @@
     "nodemon": "^3.0.2",
     "prisma": "^5.7.0"
   },
-  "keywords": ["food", "delivery", "api", "express", "prisma", "postgresql"],
+  "keywords": [
+    "food",
+    "delivery",
+    "api",
+    "express",
+    "prisma",
+    "postgresql"
+  ],
   "author": "Foody Team",
   "license": "MIT"
 }
