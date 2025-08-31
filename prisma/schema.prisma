@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  cartItems    UserCartItem[]
+  transactions Transaction[]
+  reviews      RestoReview[]
+
+  @@map("users")
+}
+
+model Restaurant {
+  id       Int      @id @default(autoincrement())
+  name     String
+  star     Float    @default(0)
+  place    String
+  lat      Float
+  long     Float
+  logo     String?
+  images   String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  menus     RestoMenu[]
+  reviews   RestoReview[]
+  cartItems UserCartItem[]
+
+  @@map("restaurants")
+}
+
+model RestoMenu {
+  id           Int      @id @default(autoincrement())
+  restaurantId Int
+  foodName     String
+  price        Int
+  type         String   // "food" or "drink"
+  image        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  restaurant Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  cartItems  UserCartItem[]
+
+  @@map("resto_menus")
+}
+
+model RestoReview {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  restaurantId Int
+  star         Int
+  comment      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("resto_reviews")
+}
+
+model UserCartItem {
+  id           Int @id @default(autoincrement())
+  cartId       String
+  userId       Int
+  restaurantId Int
+  menuId       Int
+  quantity     Int @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menu       RestoMenu  @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@map("user_cart_items")
+}
+
+model Transaction {
+  id            Int      @id @default(autoincrement())
+  transactionId String   @unique
+  userId        Int
+  paymentMethod String
+  price         Int
+  serviceFee    Int      @default(1000)
+  deliveryFee   Int      @default(10000)
+  totalPrice    Int
+  status        String   @default("preparing") // preparing, on_the_way, delivered, done, cancelled
+  items         Json     // Store order items as JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
